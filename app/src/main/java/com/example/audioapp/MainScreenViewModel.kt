@@ -68,8 +68,6 @@ class MainScreenViewModel(application: Application) : AndroidViewModel(applicati
         println("-> stop")
         mMediaRecorder?.stop()
         mMediaRecorder?.reset()
-        mMediaRecorder?.release()
-        mMediaRecorder = null
         mRecordState.value = "OFF"
         mJob.cancel()
         mListOfFiles.value = mOutputDir.listFiles().toList()
