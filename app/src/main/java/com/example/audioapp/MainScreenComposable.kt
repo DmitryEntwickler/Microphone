@@ -3,15 +3,14 @@ package com.example.audioapp
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
-import androidx.compose.material.Button
-import androidx.compose.material.Divider
-import androidx.compose.material.Icon
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -33,25 +32,34 @@ fun MainScreenComposable(mMainScreenViewModel: MainScreenViewModel = viewModel()
     val mSelectedFile by mMainScreenViewModel.mSelectedFile.observeAsState()
     val mFileToDelete by mMainScreenViewModel.mFileToDelete.observeAsState()
 
-    Column(modifier = Modifier.fillMaxWidth()) {
+    Column(modifier = Modifier
+        .fillMaxWidth()
+        .background(color = colorResource(id = R.color.background))) {
         Text(
             text = "Microphone",
             modifier = Modifier
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .padding(top = 16.dp),
             fontSize = 32.sp,
+            color = colorResource(id = R.color.textColor),
             textAlign = TextAlign.Center
         )
 
         Button(
-            onClick = { mMainScreenViewModel.buttonClickMic() },
+            onClick = {
+                mMainScreenViewModel.buttonClickMic()
+                mMainScreenViewModel.mSelectedFile.value = null
+                      },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .padding(16.dp),
+            colors = ButtonDefaults.buttonColors(backgroundColor = colorResource(id = R.color.buttonColor))
         )
         {
             Text(
                 text = if (mRecordState == "OFF") "Start" else "Stop",
-                fontSize = 48.sp
+                fontSize = 32.sp,
+                color = colorResource(id = R.color.buttonTextColor)
             )
         }
 
@@ -63,6 +71,7 @@ fun MainScreenComposable(mMainScreenViewModel: MainScreenViewModel = viewModel()
                     modifier = Modifier
                         .fillMaxWidth()
                         .size(48.dp),
+                    tint = colorResource(id = R.color.textColor),
                     contentDescription = null // decorative element
                 )
                 mRecordState?.let {
@@ -71,6 +80,7 @@ fun MainScreenComposable(mMainScreenViewModel: MainScreenViewModel = viewModel()
                         modifier = Modifier
                             .fillMaxWidth(),
                         fontSize = 24.sp,
+                        color = colorResource(id = R.color.textColor),
                         textAlign = TextAlign.Center
                     )
                 }
@@ -80,6 +90,7 @@ fun MainScreenComposable(mMainScreenViewModel: MainScreenViewModel = viewModel()
                     modifier = Modifier
                         .fillMaxWidth()
                         .size(48.dp),
+                    tint = colorResource(id = R.color.textColor),
                     contentDescription = null // decorative element
                 )
                 Text(
@@ -87,6 +98,7 @@ fun MainScreenComposable(mMainScreenViewModel: MainScreenViewModel = viewModel()
                     modifier = Modifier
                         .fillMaxWidth(),
                     fontSize = 24.sp,
+                    color = colorResource(id = R.color.textColor),
                     textAlign = TextAlign.Center
                 )
             }
@@ -99,6 +111,7 @@ fun MainScreenComposable(mMainScreenViewModel: MainScreenViewModel = viewModel()
             modifier = Modifier
                 .fillMaxWidth(),
             fontSize = 24.sp,
+            color = colorResource(id = R.color.textColor),
             textAlign = TextAlign.Center
         )
 
@@ -109,6 +122,7 @@ fun MainScreenComposable(mMainScreenViewModel: MainScreenViewModel = viewModel()
                 .fillMaxWidth()
                 .padding(16.dp),
             fontSize = 14.sp,
+            color = colorResource(id = R.color.textColor),
             textAlign = TextAlign.Center
         )
 
@@ -117,15 +131,17 @@ fun MainScreenComposable(mMainScreenViewModel: MainScreenViewModel = viewModel()
             onClick = { mMainScreenViewModel.playAudio() },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .padding(16.dp),
+            colors = ButtonDefaults.buttonColors(backgroundColor = colorResource(id = R.color.buttonColor))
         )
         {
             Text(
-                text = if (mPlayState == "OFF") {
+                text =  if (mPlayState == "OFF") {
                         if (mSelectedFile != null && mSelectedFile?.extension == "mp3") "Play: ${mSelectedFile?.name}"  // File is selected
                         else "Play" // File si not selected
                     } else "Stop",
-                fontSize = 18.sp
+                fontSize = if (mMainScreenViewModel.mSelectedFile.value == null) 32.sp else 18.sp,
+                color = colorResource(id = R.color.buttonTextColor)
             )
         }
         // Playing Message
@@ -135,6 +151,7 @@ fun MainScreenComposable(mMainScreenViewModel: MainScreenViewModel = viewModel()
                 modifier = Modifier
                     .fillMaxWidth(),
                 fontSize = 32.sp,
+                color = colorResource(id = R.color.textColor),
                 textAlign = TextAlign.Center
             )
         }
@@ -143,7 +160,7 @@ fun MainScreenComposable(mMainScreenViewModel: MainScreenViewModel = viewModel()
         LazyColumn(
             verticalArrangement = Arrangement.Top,
             modifier = Modifier
-                .fillMaxHeight(0.9F)
+                .fillMaxHeight()
                 .padding(vertical = 16.dp),
             state = mListState,
         ) {
@@ -153,9 +170,9 @@ fun MainScreenComposable(mMainScreenViewModel: MainScreenViewModel = viewModel()
                     text = "Files in Dir: ${mListOfFiles.orEmpty().size}",
                     modifier = Modifier
                         .padding(8.dp)
-                        .fillMaxWidth()
-                        .background(Color.LightGray),
+                        .fillMaxWidth(),
                     fontSize = 14.sp,
+                    color = colorResource(id = R.color.textColor)
                 )
             }
 
@@ -165,15 +182,15 @@ fun MainScreenComposable(mMainScreenViewModel: MainScreenViewModel = viewModel()
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp)
-                        .combinedClickable (
-                            onClick = {mMainScreenViewModel.mSelectedFile.value = it},
+                        .combinedClickable(
+                            onClick = { mMainScreenViewModel.mSelectedFile.value = it },
                             onLongClick = {
                                 mMainScreenViewModel.mFileToDelete.value = it
                                 mMainScreenViewModel.deleteRecord()
                                 mMainScreenViewModel.mSelectedFile.value = null
                             }
 
-                )
+                        )
                 ) {
                     Image(
                         painter =
@@ -182,18 +199,20 @@ fun MainScreenComposable(mMainScreenViewModel: MainScreenViewModel = viewModel()
                         else painterResource(id = R.drawable.device_unknown_24),
                         contentDescription = "Typ image",
                         modifier = Modifier
-                            .size(22.dp)
+                            .size(22.dp),
+                        colorFilter = ColorFilter.tint(color = colorResource(id = R.color.textColor))
                     )
 
                     Text(
                         text = it.name,
                         fontSize = 18.sp,
                         modifier = Modifier
-                            .padding(start = 16.dp)
+                            .padding(start = 16.dp),
+                        color = colorResource(id = R.color.textColor)
                     )
 
                 }
-                Divider()
+                Divider(color = colorResource(id = R.color.textColor))
             }
         } // end of Lazy Column
 
