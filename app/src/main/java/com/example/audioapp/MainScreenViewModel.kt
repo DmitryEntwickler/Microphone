@@ -31,6 +31,7 @@ class MainScreenViewModel(application: Application) : AndroidViewModel(applicati
     @SuppressLint("StaticFieldLeak")
     val mContext = getApplication<Application>().applicationContext
     val mSelectedFile = MutableLiveData<File>()
+    val mFileToDelete = MutableLiveData<File>()
     var mediaPlayer= MutableLiveData<MediaPlayer?>()
     val mPlayState = MutableLiveData("OFF")
     val mIsPlaying = mediaPlayer.map { it?.setOnCompletionListener { mPlayState.value = "OFF"; println("-> completed! State is ${mPlayState.value}") } }
@@ -49,7 +50,7 @@ class MainScreenViewModel(application: Application) : AndroidViewModel(applicati
 
     private fun startMic() {
         val now = Date()
-        val fileName = String.format("/rec %tH_%tM_%tS.mp3", now, now, now)
+        val fileName = String.format("/rec %tF %tH_%tM_%tS.mp3", now, now, now, now)
         println("-> $fileName")
         mMediaRecorder?.setAudioSource(MediaRecorder.AudioSource.MIC)
         mMediaRecorder?.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
@@ -104,6 +105,13 @@ class MainScreenViewModel(application: Application) : AndroidViewModel(applicati
         }
 
 
+    }
+
+    fun deleteRecord(){
+        println("-> LongClick")
+        mFileToDelete.value?.delete()
+        println("-> delete ok")
+        mListOfFiles.value = mOutputDir.listFiles().toList()
     }
 
 } // end of ViewModel

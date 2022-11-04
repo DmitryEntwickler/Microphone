@@ -1,9 +1,6 @@
 package com.example.audioapp
 
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
 import androidx.compose.material.Button
@@ -34,6 +31,7 @@ fun MainScreenComposable(mMainScreenViewModel: MainScreenViewModel = viewModel()
     val mListOfFiles by mMainScreenViewModel.mListOfFiles.observeAsState()
     val mListState = rememberLazyListState() // for control and observe scrolling
     val mSelectedFile by mMainScreenViewModel.mSelectedFile.observeAsState()
+    val mFileToDelete by mMainScreenViewModel.mFileToDelete.observeAsState()
 
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
@@ -167,7 +165,15 @@ fun MainScreenComposable(mMainScreenViewModel: MainScreenViewModel = viewModel()
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp)
-                        .clickable { mMainScreenViewModel.mSelectedFile.value = it }
+                        .combinedClickable (
+                            onClick = {mMainScreenViewModel.mSelectedFile.value = it},
+                            onLongClick = {
+                                mMainScreenViewModel.mFileToDelete.value = it
+                                mMainScreenViewModel.deleteRecord()
+                                mMainScreenViewModel.mSelectedFile.value = null
+                            }
+
+                )
                 ) {
                     Image(
                         painter =
