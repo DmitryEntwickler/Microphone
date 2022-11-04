@@ -7,6 +7,7 @@ import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -120,7 +121,18 @@ fun MainScreenComposable(mMainScreenViewModel: MainScreenViewModel = viewModel()
             text = "Record to: $mOutputDir",
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(4.dp),
+            fontSize = 14.sp,
+            color = colorResource(id = R.color.textColor),
+            textAlign = TextAlign.Center
+        )
+        // disk size
+
+        Text(
+            text = "Free Space on Handy: ${(mOutputDir.freeSpace) / (1024*1024*1024)} /  ${(mOutputDir.totalSpace) / (1024*1024*1024)} GB",
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(4.dp),
             fontSize = 14.sp,
             color = colorResource(id = R.color.textColor),
             textAlign = TextAlign.Center
@@ -203,13 +215,23 @@ fun MainScreenComposable(mMainScreenViewModel: MainScreenViewModel = viewModel()
                         colorFilter = ColorFilter.tint(color = colorResource(id = R.color.textColor))
                     )
 
-                    Text(
-                        text = it.name,
-                        fontSize = 18.sp,
-                        modifier = Modifier
-                            .padding(start = 16.dp),
-                        color = colorResource(id = R.color.textColor)
-                    )
+                    Column(horizontalAlignment = Alignment.End) {
+                        Text(
+                            text = it.name,
+                            fontSize = 18.sp,
+                            modifier = Modifier
+                                .padding(start = 16.dp),
+                            color = colorResource(id = R.color.textColor)
+                        )
+                        Text(
+                            text = " ${(it.length()/1000).toFloat()} KB",
+                            fontSize = 14.sp,
+                            modifier = Modifier
+                                .padding(start = 16.dp),
+                            color = colorResource(id = R.color.textColor)
+                        )
+                    }
+
 
                 }
                 Divider(color = colorResource(id = R.color.textColor))
