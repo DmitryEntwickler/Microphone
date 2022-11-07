@@ -24,51 +24,54 @@ fun CustomAlertDialog(file: File, setShowDialog: (Boolean) -> Unit, mainScreenvi
     val mNewFileNameIsCorrect = mainScreenviewModel.mNewFileNameIsCorrect.observeAsState()
 
     Dialog(
-        onDismissRequest = { setShowDialog(false) },
-        properties = DialogProperties(usePlatformDefaultWidth = false)
-    ) {
-        Surface(
-            shape = RoundedCornerShape(16.dp),
-            color = Color.White,
-        ) {
+        onDismissRequest = { mainScreenviewModel.mNewFileNameIsCorrect.value = true; setShowDialog(false) },
+        properties = DialogProperties(usePlatformDefaultWidth = false), // <- make wrap new content size und resize Dialog Box
+        content = {
+            Surface(
+                shape = RoundedCornerShape(16.dp),
+                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                color = Color.White,
+            ) {
 
-            Column(modifier = Modifier.padding(16.dp)) {
+                Column(modifier = Modifier.padding(16.dp)) {
 
-                OutlinedTextField(
-                    value = mText,
-                    label = { Text(text = "Enter new Name") },
-                    onValueChange = { mText = it; mainScreenviewModel.mNewFileNameIsCorrect.value = true },
-                    placeholder = { Text(text = "Enter new Name") },
-                    modifier = Modifier.fillMaxWidth()
-                )
+                    OutlinedTextField(
+                        value = mText,
+                        label = { Text(text = "Enter new Name") },
+                        onValueChange = { mText = it; mainScreenviewModel.mNewFileNameIsCorrect.value = true },
+                        placeholder = { Text(text = "Enter new Name") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
 
-                if (mNewFileNameIsCorrect.value == false)
-                Text(
-                    text = "Incorrect file name. Use only Letters, Numbers, Space, '-' and '_'",
-                    color = Color.Red
-                )
+                    if (mNewFileNameIsCorrect.value == false)
+                        Text(
+                            text = "Incorrect file name. Use only Letters, Numbers, Space, '-' and '_'",
+                            color = Color.Red
+                        )
 
-                Row(
-                    modifier = Modifier
-                        .padding(top = 16.dp)
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    Row(
+                        modifier = Modifier
+                            .padding(top = 16.dp)
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
 
-                ) {
-                    Button(onClick = {mainScreenviewModel.mNewFileNameIsCorrect.value = true; setShowDialog(false) })
-                    {
-                        Text(text = "Cancel")
-                        println("-> ${mainScreenviewModel.mNewFileNameIsCorrect.value}")
-                    }
-
-                    Button(
-                        onClick = { if (mainScreenviewModel.renameRecord(mText.text)) setShowDialog(false) }
                     ) {
-                        Text(text = "Rename")
+                        Button(onClick = {mainScreenviewModel.mNewFileNameIsCorrect.value = true; setShowDialog(false) })
+                        {
+                            Text(text = "Cancel")
+                            println("-> ${mainScreenviewModel.mNewFileNameIsCorrect.value}")
+                        }
+
+                        Button(
+                            onClick = { if (mainScreenviewModel.renameRecord(mText.text)) setShowDialog(false) }
+                        ) {
+                            Text(text = "Rename")
+                        }
                     }
                 }
-            }
 
+            }
         }
-    }
+    )
+
 }
