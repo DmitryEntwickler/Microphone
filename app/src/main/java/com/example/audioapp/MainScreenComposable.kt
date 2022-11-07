@@ -7,9 +7,10 @@ import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -31,7 +32,9 @@ fun MainScreenComposable(mMainScreenViewModel: MainScreenViewModel = viewModel()
     val mListOfFiles by mMainScreenViewModel.mListOfFiles.observeAsState()
     val mListState = rememberLazyListState() // for control and observe scrolling
     val mSelectedFile by mMainScreenViewModel.mSelectedFile.observeAsState()
-    val mFileToDelete by mMainScreenViewModel.mFileToDelete.observeAsState()
+    val mFileToHandle by mMainScreenViewModel.mFileToHandle.observeAsState()
+    val mOpenDialog = remember { mutableStateOf(false)  }
+    val mOpenCustomDialog = remember { mutableStateOf(false)  }
 
     Column(modifier = Modifier
         .fillMaxWidth()
@@ -195,10 +198,17 @@ fun MainScreenComposable(mMainScreenViewModel: MainScreenViewModel = viewModel()
                         .fillMaxWidth()
                         .padding(16.dp)
                         .combinedClickable(
-                            onClick = { mMainScreenViewModel.mSelectedFile.value = it },
+                            onClick = {
+                                mMainScreenViewModel.mSelectedFile.value = it
+                                      },
                             onLongClick = {
-                                mMainScreenViewModel.mFileToDelete.value = it
-                                mMainScreenViewModel.deleteRecord()
+                                mMainScreenViewModel.mFileToHandle.value = it
+                                mOpenDialog.value = true
+                                mMainScreenViewModel.mSelectedFile.value = null
+                            },
+                            onDoubleClick = {
+                                mMainScreenViewModel.mFileToHandle.value = it
+                                if (mMainScreenViewModel.checkMP3()) mOpenCustomDialog.value = true
                                 mMainScreenViewModel.mSelectedFile.value = null
                             }
 
@@ -238,6 +248,57 @@ fun MainScreenComposable(mMainScreenViewModel: MainScreenViewModel = viewModel()
             }
         } // end of Lazy Column
 
+
+        if (mOpenDialog.value) {
+
+            AlertDialog(
+                onDismissRequest = {
+                    // Dismiss the dialog when the user clicks outside the dialog or on the back
+                    // button. If you want to disable that functionality, simply use an empty
+                    // onCloseRequest.
+                    mOpenDialog.value = false
+                },
+                title = {
+                    Text(text = "Delete the Record")
+                },
+                text = {
+                    Text("Delete: ${mFileToHandle?.name} ?")
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            mMainScreenViewModel.deleteRecord()
+                            mOpenDialog.value = false
+                        },
+                        colors = ButtonDefaults.buttonColors(backgroundColor = colorResource(id = R.color.dialogButtonColor))
+                    ) {
+                        Text("Ok")
+                    }
+                },
+                dismissButton = {
+                    Button(
+                        onClick = {
+                            mOpenDialog.value = false
+                        },
+                        colors = ButtonDefaults.buttonColors(backgroundColor = colorResource(id = R.color.dialogButtonColor))
+                    ) {
+                        Text("Cancel")
+                    }
+                },
+                backgroundColor = colorResource(id = R.color.dialogBackgroundColor)
+            )
+        }
+
+        if (mOpenCustomDialog.value) {
+            mMainScreenViewModel.mFileToHandle.value?.let {
+                CustomAlertDialog(
+                    it,
+                    setShowDialog = {mOpenCustomDialog.value = false},
+                    mMainScreenViewModel
+                )
+            }
+
+        }
 
     } // end of column
 

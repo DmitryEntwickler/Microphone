@@ -5,6 +5,7 @@ import android.app.Application
 import android.media.MediaPlayer
 import android.media.MediaRecorder
 import android.os.Environment
+import androidx.compose.runtime.mutableStateOf
 import androidx.core.net.toUri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
@@ -31,13 +32,14 @@ class MainScreenViewModel(application: Application) : AndroidViewModel(applicati
     @SuppressLint("StaticFieldLeak")
     val mContext = getApplication<Application>().applicationContext
     val mSelectedFile = MutableLiveData<File>()
-    val mFileToDelete = MutableLiveData<File>()
+    val mFileToHandle = MutableLiveData<File>()
     var mediaPlayer= MutableLiveData<MediaPlayer?>()
     val mPlayState = MutableLiveData("OFF")
     val mIsPlaying = mediaPlayer.map { it?.setOnCompletionListener { mPlayState.value = "OFF"; println("-> completed! State is ${mPlayState.value}") } }
     val mPlayingMessage = mPlayState.map { if (it == "OFF") null else "playing..." }
 
-
+    // Custom Alert Dialog
+    val mTextFieldText = mFileToHandle.map { it.name }
 
     init {
         mListOfFiles.value = mOutputDir.listFiles().toList()
@@ -109,9 +111,44 @@ class MainScreenViewModel(application: Application) : AndroidViewModel(applicati
 
     fun deleteRecord(){
         println("-> LongClick")
-        mFileToDelete.value?.delete()
-        println("-> delete ok")
+        mFileToHandle.value?.delete()
+        println("-> deleteok")
         mListOfFiles.value = mOutputDir.listFiles().toList()
+    }
+
+    fun checkMP3(): Boolean{
+        println("-> check: ${mFileToHandle.value?.extension } ")
+        return mFileToHandle.value?.extension == "mp3"
+    }
+
+    fun renameRecord(newName: String): Boolean{
+        println("-> VM: rename")
+        if (newName.isNotEmpty() && isAlphaNumeric(newName)){
+            val newFileString =
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).absolutePath + "/$newName.mp3"
+            val newFile = File(newFileString)
+            mFileToHandle.value?.renameTo(newFile)
+            println("-> rename ok")
+            mListOfFiles.value = mOutputDir.listFiles().toList()
+            return true
+        }
+        else {println("-> invalid name"); return false}
+
+    }
+
+    fun getNewFiles(){
+        println("-> get all Files")
+        mListOfFiles.value = mOutputDir.listFiles().toList()
+    }
+
+    fun isAlphaNumeric(string: String): Boolean {
+        for (c in string)
+        {
+            if (c !in 'A'..'Z' && c !in 'a'..'z' && c!in '0'..'9') {
+                return false
+            }
+        }
+        return true
     }
 
 } // end of ViewModel

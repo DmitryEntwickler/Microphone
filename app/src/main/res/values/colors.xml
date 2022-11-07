@@ -13,4 +13,6 @@
     <color name="backgroundRow">#e8a99c</color>
     <color name="buttonColor">#FF03DAC5</color>
     <color name="buttonTextColor">#343d46</color>
+    <color name="dialogBackgroundColor">#d3d3d3</color>
+    <color name="dialogButtonColor">#989898</color>
 </resources>
