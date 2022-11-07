@@ -32,14 +32,14 @@ class MainScreenViewModel(application: Application) : AndroidViewModel(applicati
     @SuppressLint("StaticFieldLeak")
     val mContext = getApplication<Application>().applicationContext
     val mSelectedFile = MutableLiveData<File>()
-    val mFileToHandle = MutableLiveData<File>()
+    var mFileToHandle = MutableLiveData<File>()
     var mediaPlayer= MutableLiveData<MediaPlayer?>()
     val mPlayState = MutableLiveData("OFF")
     val mIsPlaying = mediaPlayer.map { it?.setOnCompletionListener { mPlayState.value = "OFF"; println("-> completed! State is ${mPlayState.value}") } }
     val mPlayingMessage = mPlayState.map { if (it == "OFF") null else "playing..." }
 
     // Custom Alert Dialog
-    val mTextFieldText = mFileToHandle.map { it.name }
+    val mNewFileNameIsCorrect = MutableLiveData(true)
 
     init {
         mListOfFiles.value = mOutputDir.listFiles().toList()
@@ -129,22 +129,22 @@ class MainScreenViewModel(application: Application) : AndroidViewModel(applicati
             val newFile = File(newFileString)
             mFileToHandle.value?.renameTo(newFile)
             println("-> rename ok")
+            mNewFileNameIsCorrect.value = true
             mListOfFiles.value = mOutputDir.listFiles().toList()
             return true
         }
-        else {println("-> invalid name"); return false}
+        else {
+            println("-> invalid name")
+            mNewFileNameIsCorrect.value = false
+            return false
+        }
 
-    }
-
-    fun getNewFiles(){
-        println("-> get all Files")
-        mListOfFiles.value = mOutputDir.listFiles().toList()
     }
 
     fun isAlphaNumeric(string: String): Boolean {
         for (c in string)
         {
-            if (c !in 'A'..'Z' && c !in 'a'..'z' && c!in '0'..'9') {
+            if (c !in 'A'..'Z' && c !in 'a'..'z' && c!in '0'..'9' && c !== ' ' && c !== '-'  && c !== '_'  ) {
                 return false
             }
         }
